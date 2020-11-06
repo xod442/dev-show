@@ -19,26 +19,31 @@
 # __maintainer__ = "Rick Kauffman"
 # __email__ = "rick.a.kauffman@hpe.com".
 
-
 from flask import Blueprint, render_template, request, redirect, session, url_for, abort
 import os
 # from werkzeug import secure_filename
 from mongoengine import Q
 import json
 import requests
-from database.creds import Creds
+from database.system import System
 import time
 from collections import OrderedDict
 # from qumulo.rest_client import RestClient
 requests.packages.urllib3.disable_warnings()
 
-def get():
-    # Get user informaation from data base
-    creds = Creds.objects.first()
-    user = creds.user.encode('utf-8')
-    password = creds.password.encode('utf-8')
-    ipaddress= creds.ipaddress.encode('utf-8')
+def save_system(uuid,family,serno,model,software,build):
 
-    creds=[ipaddress,user,password]
+    # Clear switches database on new session.
+    System.objects().delete()
 
-    return creds
+
+    # Build database entry to save creds
+    sys = System(uuid=uuid,family=family,serno=serno,model=model,software=software,build=build)
+    # Save the record
+    try:
+        sys.save()
+    except:
+        error="SUB-system_save-ERR001 - Failed to save System Information"
+        return render_template('main/dberror.html', error=error)
+
+    return

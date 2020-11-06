@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # (C) Copyright 2019 Hewlett Packard Enterprise Development LP.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,29 +15,17 @@
 # __author__ = "@netwookie"
 # __credits__ = ["Rick Kauffman"]
 # __license__ = "Apache2.0"
+# __version__ = "1.0.0"
 # __maintainer__ = "Rick Kauffman"
-# __email__ = "rick.a.kauffman@hpe.com".
+# __email__ = "rick.a.kauffman@hpe.com"
 
-
-from flask import Blueprint, render_template, request, redirect, session, url_for, abort
+from mongoengine import signals
+from flask import url_for
 import os
-# from werkzeug import secure_filename
-from mongoengine import Q
-import json
-import requests
-from database.creds import Creds
-import time
-from collections import OrderedDict
-# from qumulo.rest_client import RestClient
-requests.packages.urllib3.disable_warnings()
 
-def get():
-    # Get user informaation from data base
-    creds = Creds.objects.first()
-    user = creds.user.encode('utf-8')
-    password = creds.password.encode('utf-8')
-    ipaddress= creds.ipaddress.encode('utf-8')
+from application import db
 
-    creds=[ipaddress,user,password]
-
-    return creds
+class Creds(db.Document):
+    ipaddress = db.StringField(db_field="i", required=True)
+    user = db.StringField(db_field="u", required=True)
+    password = db.StringField(db_field="p", required=True)

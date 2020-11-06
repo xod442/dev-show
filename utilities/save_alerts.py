@@ -19,26 +19,31 @@
 # __maintainer__ = "Rick Kauffman"
 # __email__ = "rick.a.kauffman@hpe.com".
 
-
 from flask import Blueprint, render_template, request, redirect, session, url_for, abort
 import os
 # from werkzeug import secure_filename
 from mongoengine import Q
 import json
 import requests
-from database.creds import Creds
+from database.alerts import Alerts
 import time
 from collections import OrderedDict
 # from qumulo.rest_client import RestClient
 requests.packages.urllib3.disable_warnings()
 
-def get():
-    # Get user informaation from data base
-    creds = Creds.objects.first()
-    user = creds.user.encode('utf-8')
-    password = creds.password.encode('utf-8')
-    ipaddress= creds.ipaddress.encode('utf-8')
+def save_alerts(severity,description,modified):
 
-    creds=[ipaddress,user,password]
+    # Clear switches database on new session.
+    Alerts.objects().delete()
 
-    return creds
+
+    # Build database entry to save creds
+    alerts = Alerts(severity=severity,description=description,modified=modified)
+    # Save the record
+    try:
+        alerts.save()
+    except:
+        error="SUB-SUB routine- ERR0011 - Failed to save alerts"
+        return render_template('main/dberror.html', error=error)
+
+    return

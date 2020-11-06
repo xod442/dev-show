@@ -25,11 +25,18 @@ import os
 from mongoengine import Q
 import json
 import requests
-from main.models import Creds
+from database.system import System
+from database.creds import Creds
+from database.alerts import Alerts
 from utilities.get_creds import get
 from utilities.save_creds import save
+from utilities.save_system import save_system
+from utilities.get_system import get_system
+from utilities.save_alerts import save_alerts
+from utilities.get_alerts import get_alerts
 import time
 from collections import OrderedDict
+from hpOneView.oneview_client import OneViewClient
 # from qumulo.rest_client import RestClient
 requests.packages.urllib3.disable_warnings()
 
@@ -67,39 +74,75 @@ def main_select():
         user = request.form['user'].encode('utf-8')
         password = request.form['password'].encode('utf-8')
 
-        # Save the creds to mongo
-        savecreds=save(ipaddress,user,password)
+
+        # Save the record
+        try:
+            savecreds=save(ipaddress,user,password)
+        except:
+            error="ERR001 - Failed to save login credentials"
+            return render_template('main/dberror.html', error=error)
+
 
     # Returning to the main page if HTTP GET pull creds from DB
     creds=get()
-     # Setting up URLs and default header parameters
-    root_url='https://'+creds[0]+':8000'
-    login_url=root_url+'/v1/session/login'
-    
-    default_header = {'content-type': 'application/json'}
-    rick.append('fail')
-    # Authenticate to controller
-    post_data = {'username': creds[1], 'password': creds[2]}
 
-    resp = requests.post(login_url,
-                  data=json.dumps(post_data),
-                  headers=default_header,
-                  verify=False)
+    authx = {
+        "ip" : creds[0],
+        "credentials" : {
+            "userName" : creds[1],
+            "password" : creds[2]
+        }
+    }
+    # Create client connector
+    client = OneViewClient(authx)
 
-    # Check to see if the cred are correct
-    if resp.status_code != 200:
-        error="ERR002 -Invalid username/password in credentials"
-        return render_template('main/dberror1.html', error=error)
+    # Get system information
+    ov = client.appliance_node_information.get_version()
+    #
+    uuid=ov['uuid'].encode('utf-8')
+    family=ov['family'].encode('utf-8')
+    serno=ov['serialNumber'].encode('utf-8')
+    model=ov['modelNumber'].encode('utf-8')
+    software=ov['softwareVersion'].encode('utf-8')
+    build=ov['build'].encode('utf-8')
+
+    # Save the system to mongo
+    try:
+        savesys=save_system(uuid,family,serno,model,software,build)
+    except:
+        error="ERR002 - Failed to save system information to mongo"
+        return render_template('main/dberror.html', error=error)
+
+    # Get alerts
+    out_alerts = []
+    ov = client.alerts.get_all()
+    for alert in ov:
+        severity=alert['severity'].encode('utf-8')
+        description=alert['description'].encode('utf-8')
+        modified=alert['modified'].encode('utf-8')
+
+        # Save the alerts to mongo
+        try:
+            savealert=save_alerts(severity,description,modified)
+        except:
+            error="ERR003 - Failed to save alarm information to mongo"
+            return render_template('main/dberror.html', error=error)
+
+        out = [severity,description,modified]
+        out_alerts.append(out)
+
+        pad='104.55.322'
 
 
 
-
-    return render_template('main/index.html', total_bytes=total_bytes,
-                                              free_size=free_size,
-                                              block_size_bytes=block_size_bytes,
-                                              identity=identity,
-                                              version=version,
-                                              nodes=nodes)
+    return render_template('main/index.html', uuid=uuid,
+                                               family=family,
+                                               serno=serno,
+                                               model=model,
+                                               software=software,
+                                               build=build,
+                                               out_alerts=out_alerts,
+                                               pad=pad)
 
 
 @main_app.route('/charts', methods=('GET', 'POST'))

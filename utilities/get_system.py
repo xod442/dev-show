@@ -26,19 +26,24 @@ import os
 from mongoengine import Q
 import json
 import requests
-from database.creds import Creds
+from database.system import System
 import time
 from collections import OrderedDict
 # from qumulo.rest_client import RestClient
 requests.packages.urllib3.disable_warnings()
 
-def get():
+def get_system():
     # Get user informaation from data base
-    creds = Creds.objects.first()
-    user = creds.user.encode('utf-8')
-    password = creds.password.encode('utf-8')
-    ipaddress= creds.ipaddress.encode('utf-8')
+    system = System.objects.first()
+    uuid = system.uuid.encode('utf-8')
+    family = system.family.encode('utf-8')
+    serno = system.serno.encode('utf-8')
+    model = system.model.encode('utf-8')
+    software = system.software.encode('utf-8')
+    build = system.build.encode('utf-8')
 
-    creds=[ipaddress,user,password]
 
-    return creds
+
+    system=[uuid,family,serno,model,software,build]
+
+    return system
