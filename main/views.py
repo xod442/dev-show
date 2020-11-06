@@ -128,8 +128,9 @@ def main_select():
             error="ERR003 - Failed to save alarm information to mongo"
             return render_template('main/dberror.html', error=error)
 
-        out = [severity,description,modified]
-        out_alerts.append(out)
+        if severity == 'Critical':
+            out = [severity,description,modified]
+            out_alerts.append(out)
 
         pad='104.55.322'
 
