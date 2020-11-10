@@ -33,10 +33,6 @@ requests.packages.urllib3.disable_warnings()
 
 def save_alerts(severity,description,modified):
 
-    # Clear switches database on new session.
-    Alerts.objects().delete()
-
-
     # Build database entry to save creds
     alerts = Alerts(severity=severity,description=description,modified=modified)
     # Save the record

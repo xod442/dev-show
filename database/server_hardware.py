@@ -19,13 +19,30 @@
 # __maintainer__ = "Rick Kauffman"
 # __email__ = "rick.a.kauffman@hpe.com"
 
-from mongoengine import signals
-from flask import url_for
-import os
 
 from application import db
 
 class Server_Hardware(db.Document):
-    severity = db.StringField(db_field="s", required=True)
+    serno = db.StringField(db_field="s", required=True)
+    proctype = db.StringField(db_field="p", required=True)
+    form = db.StringField(db_field="f", required=True)
+    hostname = db.StringField(db_field="h", required=True)
+    ipaddress = db.StringField(db_field="i", required=True)
+    asset = db.StringField(db_field="a", required=True)
+    license = db.StringField(db_field="l", required=True)
+    sname = db.StringField(db_field="sn", required=True)
+    mem = db.StringField(db_field="m", required=True)
+    hostos = db.StringField(db_field="ho", required=True)
+    mpmodel = db.StringField(db_field="mpm", required=True)
+    type = db.StringField(db_field="t", required=True)
     description = db.StringField(db_field="d", required=True)
-    modified = db.StringField(db_field="m", required=True)
+    firmver = db.StringField(db_field="fv", required=True)
+    vserno = db.StringField(db_field="v", required=True)
+    etag = db.StringField(db_field="e", required=True)
+    smodel = db.StringField(db_field="sm", required=True)
+    power = db.StringField(db_field="po", required=True)
+    name = db.StringField(db_field="n", required=True)
+    cores = db.StringField(db_field="c", required=True)
+    romv = db.StringField(db_field="r", required=True)
+    position = db.StringField(db_field="pos", required=True)
+    model = db.StringField(db_field="mo", required=True)

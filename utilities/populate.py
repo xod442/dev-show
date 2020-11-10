@@ -26,19 +26,67 @@ import os
 from mongoengine import Q
 import json
 import requests
-from database.system import System
-import time
-from collections import OrderedDict
+# Add additional mongo collections here
+from database.server_hardware import Server_Hardware
+# import time
+# from collections import OrderedDict
 # from qumulo.rest_client import RestClient
 requests.packages.urllib3.disable_warnings()
 
-def get():
-    # Get user informaation from data base
-    creds = Creds.objects.first()
-    user = creds.user.encode('utf-8')
-    password = creds.password.encode('utf-8')
-    ipaddress= creds.ipaddress.encode('utf-8')
+def servers(ov_servers):
 
-    creds=[ipaddress,user,password]
+    # Clear switches database on new session.
+    Server_Hardware.objects().delete()
 
-    return creds
+    # Load server into mongo database
+    for server in ov_servers:
+        # Mongo collection will not allow blank fields
+        if server['processorType'] == None:
+            server['processorType'] = '-'
+        if server['formFactor'] == None:
+            server['formFactor'] = '-'
+        if server['assetTag'] == None:
+            server['assetTag'] = '-'
+        if server['serverName'] == None:
+            server['serverName'] = '-'
+        if server['memoryMb'] == None:
+            server['memoryMb'] = '-'
+        if server['description'] == None:
+            server['description'] = '-'
+        if server['virtualSerialNumber'] == None:
+            server['virtualSerialNumber'] = '-'
+        if server['romVersion'] == None:
+            server['romVersion'] = '-'
+
+        # Build database entry to save creds
+        serve = Server_Hardware(serno=server['serialNumber'].encode('utf-8'),
+                                proctype = server['processorType'],
+                                form = server['formFactor'],
+                                hostname = server['mpHostInfo']['mpHostName'].encode('utf-8'),
+                                ipaddress = server['mpHostInfo']['mpIpAddresses'][0]['address'].encode('utf-8'),
+                                asset = server['assetTag'],
+                                license = server['licensingIntent'].encode('utf-8'),
+                                sname = server['serverName'],
+                                mem = server['memoryMb'],
+                                hostos = str(server['hostOsType']),
+                                mpmodel = server['mpModel'].encode('utf-8'),
+                                type = server['type'].encode('utf-8'),
+                                description = server['description'],
+                                firmver = server['mpFirmwareVersion'].encode('utf-8'),
+                                vserno = server['virtualSerialNumber'],
+                                etag = server['eTag'].encode('utf-8'),
+                                smodel = server['shortModel'].encode('utf-8'),
+                                power = server['powerState'].encode('utf-8'),
+                                name = server['name'].encode('utf-8'),
+                                cores = str(server['processorCoreCount']),
+                                romv = server['romVersion'],
+                                position = str(server['position']),
+                                model = server['model'].encode('utf-8'))
+
+        # Save the record
+        try:
+            serve.save()
+        except:
+            error="SUB-SUB routine- ERR00100 - Failed to save server_harware"
+            return render_template('main/dberror.html', error=error, serve=serve)
+    return

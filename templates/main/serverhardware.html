@@ -1,0 +1,65 @@
+{% extends "base1.html" %}
+
+{% block title %}Visual Qumulo{% endblock %}
+
+{% block content %}
+
+{% include "navbarq-left.html" %}
+{% include "navbarq-top.html" %}
+
+      <!-- Main content -->
+
+<form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+<div class="col-1">
+  <div class="panel panel-default templatemo-content-widget white-bg no-padding templatemo-overflow-hidden">
+    <i class="fa fa-times"></i>
+    <div class="form-group">
+      <button type="submit" class="templatemo-blue-button width-100">Return To Main</button>
+    </div>
+    <hr>
+    <form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+      <div class="form-group">
+        <button type="submit" class="templatemo-blue-button width-100">Service Now</button>
+      </div>
+    <div class="panel-heading templatemo-position-relative"><h2 class="text-uppercase">Server Hardware</h2></div>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <td>Serial</td>
+            <td>Model</td>
+            <td>Short Mod</td>
+            <td>Proc-Type</td>
+            <td>Position</td>
+            <td>Server</td>
+            <td>Memory</td>
+            <td>Firmware</td>
+            <td>ROM Version</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in out_servers %}
+          <tr>
+            <td>{{s[0]}}</td>
+            <td>{{s[1]}}</td>
+            <td>{{s[2]}}</td>
+            <td>{{s[3]}}</td>
+            <td>{{s[4]}}</td>
+            <td>{{s[5]}}</td>
+            <td>{{s[6]}}</td>
+            <td>{{s[7]}}</td>
+            <td>{{s[8]}}</td>
+
+          </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </form>
+  <hr>
+
+      </form>
+{% endblock %}

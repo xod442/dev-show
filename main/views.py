@@ -34,6 +34,8 @@ from utilities.save_system import save_system
 from utilities.get_system import get_system
 from utilities.save_alerts import save_alerts
 from utilities.get_alerts import get_alerts
+from utilities.populate import servers
+from database.server_hardware import Server_Hardware
 import time
 from collections import OrderedDict
 from hpOneView.oneview_client import OneViewClient
@@ -60,8 +62,8 @@ def help():
 
     return render_template('main/help.html')
 
-@main_app.route('/main_select', methods=('GET', 'POST'))
-def main_select():
+@main_app.route('/main_load', methods=('GET', 'POST'))
+def main_load():
     '''
     read creds
     '''
@@ -113,6 +115,9 @@ def main_select():
         error="ERR002 - Failed to save system information to mongo"
         return render_template('main/dberror.html', error=error)
 
+
+    # Clear switches database on new session.
+    Alerts.objects().delete()
     # Get alerts
     out_alerts = []
     ov = client.alerts.get_all()
@@ -128,12 +133,23 @@ def main_select():
             error="ERR003 - Failed to save alarm information to mongo"
             return render_template('main/dberror.html', error=error)
 
-        if severity == 'Critical':
-            out = [severity,description,modified]
-            out_alerts.append(out)
+
+        out = [severity,description,modified]
+        out_alerts.append(out)
 
         pad='104.55.322'
 
+    # Populate the rest of the mongo collections
+    #------------------------------------------------SERVERS------------------
+    # Get and Save Server Hardware
+    ov_servers = client.server_hardware.get_all()
+    try:
+        load_servers = servers(ov_servers)
+    except:
+        error="ERR004 - Failed to save server hardware information to mongo"
+        return render_template('main/dberror.html', error=error)
+
+    #-------------------------------------------------------------------------
 
 
     return render_template('main/index.html', uuid=uuid,
@@ -145,13 +161,63 @@ def main_select():
                                                out_alerts=out_alerts,
                                                pad=pad)
 
+@main_app.route('/main_select', methods=('GET', 'POST'))
+def main_select():
+    '''
+    return to the main screen
+    '''
+    # get system information
+    system = System.objects()
+    for s in system:
+        uuid = s.uuid.encode('utf8')
+        family=s.family.encode('utf8')
+        serno=s.serno.encode('utf8')
+        model=s.model.encode('utf8')
+        software=s.software.encode('utf8')
+        build=s.build.encode('utf8')
 
-@main_app.route('/charts', methods=('GET', 'POST'))
-def charts():
+    # Get alerts
+    alerts = Alerts.objects()
+    out_alerts = []
+    for alert in alerts:
+        out = [alert.severity,alert.description,alert.modified]
+        out_alerts.append(out)
+
+    pad='104.55.322'
+
+    return render_template('main/index.html', uuid=uuid,
+                                               family=family,
+                                               serno=serno,
+                                               model=model,
+                                               software=software,
+                                               build=build,
+                                               out_alerts=out_alerts,
+                                               pad=pad)
+
+
+@main_app.route('/serverhardware', methods=('GET', 'POST'))
+def serverhardware():
     '''
-    Display Charts
+    Display table of the server hardware
     '''
-    return render_template('main/charts.html')
+    servers = Server_Hardware.objects()
+
+    out_servers = []
+
+    for server in servers:
+        out = [server.model,
+              server.serno,
+              server.smodel,
+              server.proctype,
+              server.name,
+              server.sname,
+              server.mem,
+              server.firmver,
+              server.romv]
+
+        out_servers.append(out)
+
+    return render_template('main/serverhardware.html', out_servers=out_servers)
 
 @main_app.route('/maps', methods=('GET', 'POST'))
 def maps():

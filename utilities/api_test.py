@@ -11,7 +11,9 @@ client = OneViewClient(authx)
 # Call api
 # ov = client.alerts.get_all()
 # ov = client.appliance_node_information.get_status()
-ov = client.appliance_node_information.get_version()
+# ov = client.appliance_node_information.get_version()
+ov_servers = client.server_hardware.get_all()
+'''
 # Print ov_alerts
 print(ov['build'])
 print(type(ov))
@@ -25,6 +27,11 @@ build=ov['build'].encode('utf-8')
 out=[uuid,family,serno,model,software,build]
 print(out)
 
+'''
+print(ov_servers)
+for i in ov_servers:
+    print(i)
+    print("----------------------------------------------")
 '''
 for k, v in ov.iteritems():
     print(v)
