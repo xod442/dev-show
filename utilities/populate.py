@@ -29,6 +29,7 @@ import requests
 # Add additional mongo collections here
 from database.server_hardware import Server_Hardware
 from database.disk_hardware import Disk_Hardware
+from database.san_managers import San_Managers
 # import time
 # from collections import OrderedDict
 # from qumulo.rest_client import RestClient
@@ -124,4 +125,26 @@ def disks(ov_disks):
                     error="SUB-SUB routine- ERR00100 - Failed to save server_harware"
                     return render_template('main/dberror.html', error=errors)
         cage = cage + 1
+    return
+
+def sanmanagers(ov_sanmanagers):
+    # Clear San Managers database on new session.
+    San_Managers.objects().delete()
+    for sm in ov_sanmanagers:
+        # Build database entry to save creds
+        manager = San_Manager(status=sm['status'].encode('utf-8'),
+                              display=sm['connectionInfo']['displayName'].encode('utf-8'),
+                              name=sm['connectionInfo']['name'].encode('utf-8'),
+                              ipaddress=sm['connectionInfo']['value'].encode('utf-8'),
+                              description=sm['description'].encode('utf-8'),
+                              state=sm['state'].encode('utf-8'),
+                              refresh=sm['refreshState'].encode('utf-8'),
+                              inside=sm['inside'].encode('utf-8'))
+
+        # Save the record
+        try:
+            manager.save()
+        except:
+            error="SUB-SUB routine- ERR00900 - Failed to save san manager"
+            return render_template('main/dberror.html', error=errors)
     return

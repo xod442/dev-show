@@ -36,8 +36,10 @@ from utilities.save_alerts import save_alerts
 from utilities.get_alerts import get_alerts
 from utilities.populate import servers
 from utilities.populate import disks
+from utilities.populate import sanmanagers
 from database.server_hardware import Server_Hardware
 from database.disk_hardware import Disk_Hardware
+from database.san_managers import San_Managers
 import time
 from collections import OrderedDict
 from hpOneView.oneview_client import OneViewClient
@@ -98,7 +100,11 @@ def main_load():
         }
     }
     # Create client connector
-    client = OneViewClient(authx)
+    try:
+        client = OneViewClient(authx)
+    except:
+        error="ERR00X - Wrong host, user or password, please try again!"
+        return render_template('main/dberror.html', error=error)
 
     # Get system information
     ov = client.appliance_node_information.get_version()
@@ -120,6 +126,7 @@ def main_load():
 
     # Clear switches database on new session.
     Alerts.objects().delete()
+
     # Get alerts
     out_alerts = []
     ov = client.alerts.get_all()
@@ -150,19 +157,61 @@ def main_load():
     except:
         error="ERR004 - Failed to save server hardware information to mongo"
         return render_template('main/dberror.html', error=error)
-
-
     #-----------------------------------------------DISKS-----------------
-
     # Get and Save D3940 Hardware
-    ov_disks = client.drive_enclosures.get_all()  
+    ov_disks = client.drive_enclosures.get_all()
     try:
         load_disks = disks(ov_disks)
     except:
         error="ERR005 - Failed to save disk hardware information to mongo"
         return render_template('main/dberror.html', error=error)
+    #-----------------------------------------------SAN MANAGERS---------------
+
+    # Get and Save San Managers
+    ov_san_managers = client.san_managers.get_all()
+
+    # Clear San Managers database on new session.
+    San_Managers.objects().delete()
+    count = 0
+    for sm in ov_san_managers:
+        status=sm['status'].encode('utf-8')
+        display=sm['connectionInfo'][count]['displayName'].encode('utf-8')
+        name=sm['connectionInfo'][count]['name'].encode('utf-8')
+        ipaddress=sm['connectionInfo'][count]['value'].encode('utf-8')
+        description=sm['description'].encode('utf-8')
+        state=sm['state'].encode('utf-8')
+        refresh=sm['refreshState'].encode('utf-8')
+        inside=sm['isInternal']
+
+        inside = str("{}").format(sm['isInternal'])
+
+        # Build database entry to save creds
+        manager = San_Managers(status=sm['status'].encode('utf-8'),
+                              display=sm['connectionInfo'][count]['displayName'].encode('utf-8'),
+                              name=sm['connectionInfo'][count]['name'].encode('utf-8'),
+                              ipaddress=sm['connectionInfo'][count]['value'].encode('utf-8'),
+                              description=sm['description'].encode('utf-8'),
+                              state=sm['state'].encode('utf-8'),
+                              refresh=sm['refreshState'].encode('utf-8'),
+                              inside=inside)
 
 
+        # out=[status,display,name,ipaddress,description,state,refresh,inside]
+
+        try:
+            manager.save()
+        except:
+            error="SUB-SUB routine- ERR00777 - Failed to save san manager"
+            return render_template('main/dberror.html', error=error)
+
+    '''
+    try:
+        load_san_manager = sanmanagers(ov_sanmanagers)
+    except:
+        error="ERR005 - Failed to save san manager information to mongo"
+        return render_template('main/dberror.html', error=error)
+    '''
+    #-----------------------------------------------RENDER-----------------
     return render_template('main/index.html', uuid=uuid,
                                                family=family,
                                                serno=serno,
@@ -269,6 +318,30 @@ def serverhardware():
         out_servers.append(out)
 
     return render_template('main/serverhardware.html', out_servers=out_servers)
+
+@main_app.route('/sanmanagers', methods=('GET', 'POST'))
+def sanmanagers():
+    '''
+    Display table of the server hardware
+    '''
+    sanmanagers = San_Managers.objects()
+
+    out_managers = []
+
+    for man in sanmanagers:
+        out = [man.status,
+              man.display,
+              man.name,
+              man.ipaddress,
+              man.description,
+              man.state,
+              man.refresh,
+              man.inside]
+
+        out_managers.append(out)
+
+    return render_template('main/sanmanagers.html', out_managers=out_managers)
+
 
 @main_app.route('/maps', methods=('GET', 'POST'))
 def maps():

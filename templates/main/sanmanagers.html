@@ -1,0 +1,58 @@
+{% extends "base1.html" %}
+
+{% block title %}San Managers{% endblock %}
+
+{% block content %}
+
+{% include "navbarq-top.html" %}
+
+      <!-- Main content -->
+
+<form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+<div class="col-1">
+  <div class="panel panel-default templatemo-content-widget white-bg no-padding templatemo-overflow-hidden">
+    <i class="fa fa-times"></i>
+
+    <form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+      <div class="form-group">
+        <button type="submit" class="templatemo-blue-button width-100">Service Now</button>
+      </div>
+    <div class="panel-heading templatemo-position-relative"><h2 class="text-uppercase">San Managers</h2></div>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <td>Status</td>
+            <td>Display</td>
+            <td>Name</td>
+            <td>IP Address</td>
+            <td>Description</td>
+            <td>State</td>
+            <td>Refresh</td>
+            <td>Internal</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in out_managers %}
+          <tr>
+            <td>{{m[0]}}</td>
+            <td>{{m[1]}}</td>
+            <td>{{m[2]}}</td>
+            <td>{{m[3]}}</td>
+            <td>{{m[4]}}</td>
+            <td>{{m[5]}}</td>
+            <td>{{m[6]}}</td>
+            <td>{{m[7]}}</td>
+          </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </form>
+  <hr>
+
+      </form>
+{% endblock %}

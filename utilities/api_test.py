@@ -13,7 +13,7 @@ client = OneViewClient(authx)
 # ov = client.appliance_node_information.get_status()
 # #ov = client.appliance_node_information.get_version()
 # ov_servers = client.server_hardware.get_all()
-ov_disks = client.drive_enclosures.get_all()
+ov_san_managers = client.san_managers.get_all()
 '''
 # Print ov_alerts
 print(ov['build'])
@@ -49,28 +49,8 @@ for d in x:
         print('+++++++++++++++++++++++++++++++++++++')
 print(len(ov))
 '''
-cage = 0
-for d3940 in ov_disks:
-    # Load server into mongo database
-    for d in d3940['driveBays']:
-        if d['drive']:
+# print(ov_san_managers)
 
-            # Build database entry to save creds
-            serialNumber=d['drive']['serialNumber'].encode('utf-8')
-            model=d['drive']['model'].encode('utf-8')
-            rotationalRpms=str(d['drive']['rotationalRpms'])
-            drivePaths=d['drive']['drivePaths']
-            firmwareVersion=d['drive']['firmwareVersion'].encode('utf-8')
-            capacity=d['drive']['capacity'].encode('utf-8')
-            temperature=d['drive']['temperature']
-            blockSize=d['drive']['blockSize']
-            state=d['drive']['state'].encode('utf-8')
-            deviceInterface=d['drive']['deviceInterface'].encode('utf-8')
-            status=d['drive']['status'].encode('utf-8')
-            driveMedia=d['drive']['driveMedia'].encode('utf-8')
-            authentic=d['drive']['authentic'].encode('utf-8')
-            out = [serialNumber,model,rotationalRpms,drivePaths,firmwareVersion,capacity,temperature,blockSize,state,deviceInterface,status,driveMedia,authentic,cage]
-            print('+++++++++++++++++++++++++++++++++++++')
-            print(out)
-            print('+++++++++++++++++++++++++++++++++++++')
-    cage = cage + 1
+for s in ov_san_managers:
+    print(s)
+    print('---------------------------------')
