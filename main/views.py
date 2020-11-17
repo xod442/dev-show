@@ -35,7 +35,9 @@ from utilities.get_system import get_system
 from utilities.save_alerts import save_alerts
 from utilities.get_alerts import get_alerts
 from utilities.populate import servers
+from utilities.populate import disks
 from database.server_hardware import Server_Hardware
+from database.disk_hardware import Disk_Hardware
 import time
 from collections import OrderedDict
 from hpOneView.oneview_client import OneViewClient
@@ -149,7 +151,16 @@ def main_load():
         error="ERR004 - Failed to save server hardware information to mongo"
         return render_template('main/dberror.html', error=error)
 
-    #-------------------------------------------------------------------------
+
+    #-----------------------------------------------DISKS-----------------
+
+    # Get and Save D3940 Hardware
+    ov_disks = client.drive_enclosures.get_all()  
+    try:
+        load_disks = disks(ov_disks)
+    except:
+        error="ERR005 - Failed to save disk hardware information to mongo"
+        return render_template('main/dberror.html', error=error)
 
 
     return render_template('main/index.html', uuid=uuid,
@@ -160,6 +171,18 @@ def main_load():
                                                build=build,
                                                out_alerts=out_alerts,
                                                pad=pad)
+
+
+
+
+
+
+
+
+
+
+
+
 
 @main_app.route('/main_select', methods=('GET', 'POST'))
 def main_select():
@@ -194,6 +217,34 @@ def main_select():
                                                out_alerts=out_alerts,
                                                pad=pad)
 
+@main_app.route('/diskhardware', methods=('GET', 'POST'))
+def diskhardware():
+    '''
+    Display table of the disk hardware
+    '''
+    disks = Disk_Hardware.objects()
+
+    out_disks = []
+
+    for disk in disks:
+        out = [disk.cage,
+              disk.serialNumber,
+              disk.model,
+              disk.rotationalRpms,
+              disk.drivePaths,
+              disk.firmwareVersion,
+              disk.capacity,
+              disk.temperature,
+              disk.blockSize,
+              disk.deviceInterface,
+              disk.status,
+              disk.driveMedia,
+              disk.authentic,
+             ]
+
+        out_disks.append(out)
+
+    return render_template('main/diskhardware.html', out_disks=out_disks)
 
 @main_app.route('/serverhardware', methods=('GET', 'POST'))
 def serverhardware():

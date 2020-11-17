@@ -1,0 +1,72 @@
+{% extends "base1.html" %}
+
+{% block title %}Sysshow{% endblock %}
+
+{% block content %}
+
+{% include "navbarq-left.html" %}
+{% include "navbarq-top.html" %}
+
+
+
+        <div class="templatemo-content-container">
+          <div class="templatemo-flex-row flex-content-row">
+            <div class="templatemo-content-widget white-bg">
+              <i class="fa fa-times"></i>
+              <div class="square"></div>
+              <h2 class="templatemo-inline-block">SysShow</h2><hr>
+              <p>Works on all major browsers. IE 10+. Sysshow is flask application framework for builing a HPE OneView mongo database.
+                This is an attempt to build a simliar resource as the syshowall powershell script.
+                This Application is a browser for the mongo database.
+                Brought to you by the good folk(s) over at <a href="http://www.wookieware.com" target="_parent">Wookieware.</a></p>
+            </div>
+
+            <div class="templatemo-content-widget white-bg col-1">
+              <i class="fa fa-times"></i>
+              <h2 class="text-uppercase">System</h2>
+              <h3 class="text-uppercase">SysInfo:</h3><hr>
+              <p> UUID: {{uuid}}</p>
+              <p> Family: {{family}}</p>
+              <p> Serial Number: {{serno}}</p>
+              <p> Model Number: {{model}}</p>
+              <p> Software Version: {{software}}</p>
+              <p> Build: {{build}}</p>
+
+            </div>
+          </div>
+
+            <div class="col-1">
+              <div class="panel panel-default templatemo-content-widget white-bg no-padding templatemo-overflow-hidden">
+                <i class="fa fa-times"></i>
+                <div class="panel-heading templatemo-position-relative"><h2 class="text-uppercase">System Alerts</h2></div>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <td>Severity</td>
+                        <td>Description</td>
+                        <td>Modified</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for a in out_alerts %}
+                      <tr>
+                        <td>{{a[0]}}</td>
+                        <td>{{a[1]}}</td>
+                        <td>{{a[2]}}</td>
+                      </tr>
+                    {%endfor%}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div> <!-- Second row ends -->
+
+        </div>
+      </div>
+    </div>
+
+     <!-- Templatemo Script -->
+
+    {% endblock %}

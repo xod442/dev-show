@@ -1,0 +1,27 @@
+{% extends "base1.html" %}
+
+{% block title %}Sysshow{% endblock %}
+
+{% block content %}
+
+
+{% include "navbarq-top.html" %}
+
+  <div class="templatemo-content-widget orange-bg">
+    <i class="fa fa-times"></i>
+    <div class="media">
+      <div class="media-left">
+        <a href="#">
+          <img class="media-object img-circle" src="images/sunset.jpg" alt="Sunset">
+        </a>
+      </div>
+      <div class="media-body">
+        <h2 class="media-heading text-uppercase">System Error</h2>
+        <p>Issue in writing to the mongo db</p>
+        <p>Error: {{error}}</p>
+        {{serve}}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

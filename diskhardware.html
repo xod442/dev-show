@@ -1,0 +1,69 @@
+{% extends "base1.html" %}
+
+{% block title %}Disk Hardware{% endblock %}
+
+{% block content %}
+
+{% include "navbarq-top.html" %}
+
+      <!-- Main content -->
+
+<form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+<div class="col-1">
+  <div class="panel panel-default templatemo-content-widget white-bg no-padding templatemo-overflow-hidden">
+    <i class="fa fa-times"></i>
+
+    <form  method="POST" class="templatemo-login-form" action="{{ url_for('.main_select')}}">
+      <div class="form-group">
+        <button type="submit" class="templatemo-blue-button width-100">Service Now</button>
+      </div>
+    <div class="panel-heading templatemo-position-relative"><h2 class="text-uppercase">Disk Hardware</h2></div>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <td>D3940</td>
+            <td>Serial</td>
+            <td>Model</td>
+            <td>Rpms</td>
+            <td>Drive Path</td>
+            <td>Firmware</td>
+            <td>Capacity</td>
+            <td>Temperature</td>
+            <td>BlockSize</td>
+            <td>Int</td>
+            <td>Status</td>
+            <td>Media</td>
+            <td>Authentic</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in out_disks %}
+          <tr>
+            <td>{{d[0]}}</td>
+            <td>{{d[1]}}</td>
+            <td>{{d[2]}}</td>
+            <td>{{d[3]}}</td>
+            <td>{{d[4]}}</td>
+            <td>{{d[5]}}</td>
+            <td>{{d[6]}}</td>
+            <td>{{d[7]}}</td>
+            <td>{{d[8]}}</td>
+            <td>{{d[9]}}</td>
+            <td>{{d[10]}}</td>
+            <td>{{d[11]}}</td>
+            <td>{{d[12]}}</td>
+
+          </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </form>
+  <hr>
+
+      </form>
+{% endblock %}
